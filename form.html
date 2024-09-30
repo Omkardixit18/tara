@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <form id="quiz-form">
+        <!-- Basic questions -->
+        <p>What is your name?</p>
+        <input type="text" name="basicQuestion0" placeholder="Your name"><br><br>
+        <p>What is your EmailId?</p>
+        <input type="email" id_"emailid" placeholder="Your email"><br></br>
+        <p>How old are you?</p>
+        <input type="number" name="basicQuestion1"><br><br>
+        <p>What is your class/year/sem?</p>
+        <input type="text" name="basicQuestion2"><br><br>
+        <p>What is the name of your school/College?</p>
+        <input type="text" name="basicQuestion3"> <br><br>
+        <p>What city do you live in?</p>
+        <input type="text" name="basicQuestion4"><br><br>
+
+        <!-- Stress and depression questions -->
+        <p>How often do you feel anxious or stressed?</p>
+        <input type="radio" name="stressQuestion0" value="Never"> Never
+        <input type="radio" name="stressQuestion0" value="Rarely"> Rarely
+        <input type="radio" name="stressQuestion0" value="Sometimes"> Sometimes
+        <input type="radio" name="stressQuestion0" value="Often"> Often
+        <input type="radio" name="stressQuestion0" value="Almost always"> Almost always<br><br>
+        <p>How often do you feel sad or depressed?</p>
+        <input type="radio" name="stressQuestion1" value="Never"> Never
+        <input type="radio" name="stressQuestion1" value="Rarely"> Rarely
+        <input type="radio" name="stressQuestion1" value="Sometimes"> Sometimes
+        <input type="radio" name="stressQuestion1" value="Often"> Often
+        <input type="radio" name="stressQuestion1" value="Almost always"><br><br>
+
+        <!-- Submit button -->
+        <button id="submit-button">Submit</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.6.1/dist/firebase.min.js"></script>
+    <script src="./mail.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQ4-TGoRgCjJDOZJy6SCg50bfyRVUfeX4",
+            authDomain: "tara-f9efb.firebaseapp.com",
+            projectId: "tara-f9efb",
+            storageBucket: "tara-f9efb.appspot.com",
+            messagingSenderId: "440420643346",
+            appId: "1:440420643346:web:86cabc82ae2cb37b66decb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Add an event listener to the submit button
+        document.getElementById("submit-button").addEventListener("click", (e) => {
+            e.preventDefault();
+            const basicAnswers = [];
+            for (let i = 0; i < 5; i++) {
+                const answer = document.querySelector(`input[name="basicQuestion${i}"]`).value;
+                basicAnswers.push(answer);
+            }
+            const stressAnswers = [];
+            for (let i = 0; i < 2; i++) {
+                const answer = document.querySelector(`input[name="stressQuestion${i}"]:checked`).value;
+                stressAnswers.push(answer);
+            }
+            const score = calculateScore(stressAnswers);
+
+            // Store the user's answers in the Realtime Database
+            const userId = basicAnswers[0]; // Use the user's name as the ID
+            const userData = {
+                basicAnswers,
+                stressAnswers,
+                score,
+            };
+            db.ref(`users/${userId}`).set(userData);
+
+            alert(`Your stress and depression score is ${score} out of 2`);
+            alert(`Your basic information: Name - ${basicAnswers[0]}, Age - ${basicAnswers[1]}, Class - ${basicAnswers[2]}, School - ${basicAnswers[3]}, City - ${basicAnswers[4]}`);
+        });
+
+        // Define a function to calculate the stress and depression score
+        function calculateScore(answers) {}
+            let score = 0;
+            for (let i = 0; i < answers.length; i++) {
+                if (answers[i] === "Often" || answers[i] === "Almost always") {
+                    score++;
+                }
+            }
+           
